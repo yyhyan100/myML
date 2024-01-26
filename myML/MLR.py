@@ -8,7 +8,7 @@ class linear_regression_OLS:
         tmp=np.ones((n,1))
         return np.concatenate([tmp,X],axis=1)
 
-    def print(self):
+    def print_coef(self):
         print(self.w)
 
     def _ols(self,X,y):
