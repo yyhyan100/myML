@@ -1,4 +1,5 @@
 import numpy as np 
+from math import *
 class linear_regression_OLS:
     def __init__(self):
         self.w=None
@@ -44,12 +45,11 @@ class linear_regression_SGD:
     def _sgd(self,X,y):
         for _ in range(self.max_iter):
             i=np.random.randint(X.shape[0])
-            print(self.w-self.eta*(np.sum(self.w*X[i,:])-y[i])*X[i,:])
             tmp=self.w-self.eta*(np.sum(self.w*X[i,:])-y[i])*X[i,:]
             if np.max(np.abs((tmp-self.w))) < self.tol:
-                self.w=tmp.copy
-                exit
-            self.w=tmp.copy
+                self.w=tmp.copy()
+                break
+            self.w=tmp.copy()
 
     def train(self,X_train,y_train):
         X=self._preprocess(X_train)
