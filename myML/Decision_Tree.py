@@ -40,7 +40,7 @@ class classification_tree:
 
     def train(X_train,y_train):
         self.results=np.unique(y_train)
-        self.features=range(X_train.reshape[1])
+        self.features=range(X_train.shape[1])
         self.__build_tree(self.tree,X_train,y_train)
 
     def __build_tree(root_tree,X,y):
