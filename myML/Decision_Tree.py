@@ -63,7 +63,7 @@ class classification_tree:
         selector=[ii for i in range(n) if ii != id]
 
         for i in range(values.size):
-            subidx=X[:,id]==values[i]
+            subidx = X[:,id]==values[i]
             root_tree.subtree[values[i]]=__build_tree(X[:,selector][subidx],y[subidx])
   
 
