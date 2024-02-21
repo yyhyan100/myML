@@ -8,10 +8,8 @@ class tree:
 
 class classification_tree:
     tree=tree()
-    def _preprocess(X):
-        pass
 
-    def __get_entropy(y):
+    def __get_entropy(self,y):
         n=y.size
         results,counts=numpy.unique(y, return_counts=True)
         ety=0.0
@@ -20,7 +18,7 @@ class classification_tree:
             ety+=tmp*log(tmp)
         return -ety
     
-    def __get_cond_entropy(x,y):
+    def __get_cond_entropy(self,x,y):
         n=x.size
         hda=0.0
         values,counts=numpy.unique(x, return_counts=True)
@@ -29,7 +27,7 @@ class classification_tree:
             hda+=counts[i]/n*hdi
         return hda
 
-    def __get_feature_entropy(x):
+    def __get_feature_entropy(self,x):
         n=x.size
         fe=0.0
         values,counts=numpy.unique(x, return_counts=True)                
@@ -38,38 +36,56 @@ class classification_tree:
             fe+=tmp*log(tmp)
         return -fe    
 
-    def train(X_train,y_train):
-        self.results=np.unique(y_train)
-        self.features=range(X_train.shape[1])
-        self.__build_tree(self.tree,X_train,y_train)
+    def train(self,X_train,y_train):
+        self.classes=np.unique(y_train)
+        m,n=X_train.shape
+        self.features=range(n)
+        self.record_num=m
+        self.tree=tree()
+        self.hd=__get_entropy(y_train)
+        self.__build_tree(self.tree,X_train,y_train,self.features)
 
-    def __build_tree(root_tree,X,y):
-        values_y=np.unique(y)
+    def __build_tree(self,upper_tree,X,y,selector):
+        values_y, counts = np.unique(y, return_counts=True)
         if values_y.size==1:
             tree=tree()
             tree.leaf_value=values_y[0]
             return tree
 
-        m,n=X.shape
+        n=selector.size
+        if n==1:
+            tree=tree()
+            tree.leaf_value=values_y[np.argmax(counts)]
+            return tree
+
         gain_ratio=np.empty(n)
         hd=__get_entropy(y)
-        for j in range(n):
+        for j in selector:
             hda=__get_cond_entropy(X[:,j],y)
             had=__get_feature_entropy(X[:,j])
-            gain_ratio[j]=(hd-hda)/had
+            gain_ratio[j]=(self.hd-hda)/had
         id=np.argmax(gain_ratio)
-        root_tree.node_id=id
-        values=np.unique(X[:,self.tree.node_id])
-        selector=[ii for i in range(n) if ii != id]
+        upper_tree.node_id=selector[id]
+        values=np.unique(X[:,selector[id]])
+        new_selector=[x for i,x in enumerate(selector) if i!=id]  
 
         for i in range(values.size):
-            subidx = X[:,id]==values[i]
-            root_tree.subtree[values[i]]=__build_tree(X[:,selector][subidx],y[subidx])
-  
+            subidx = X[:,selector[id]]==values[i]
+            upper_tree.subtree[values[i]]=__build_tree(X[subidx,new_selector],y[subidx])  
 
+    def __find_leaf(self,tree,x):
+        node_id=tree.node_id
+        if node_id == -1:
+            return tree.leaf_value
+        else: 
+            return __find_leaf(tree.subtree[x[node_id]],x)
 
-    def find_leaf():
-        pass
-    def predict(X_predict):
-        pass
-		
+    def predict(self,X_predict):
+        if len(shape(X_predict))==1 :
+            result=__find_leaf(self.tree,X_predict)
+        else:
+            m=X_predict.shape[0]
+            result=np.empty(m)
+            for i in range(m):
+                result[i]=__find_leaf(self.tree,X_predict[i])
+        return result
