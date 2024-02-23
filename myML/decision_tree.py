@@ -47,10 +47,11 @@ class classification_tree:
         self.trained_tree=self.__build_tree(X_train,y_train,self.features)
 
     def __build_tree(self,X,y,selector=[]):
+        # selector is the list of features used to build the subtree
         newtree = tree()
         values_y, counts = np.unique(y, return_counts=True)
         if values_y.size==1 or len(selector)==0:
-            print("leaf created:",values_y[np.argmax(counts)])
+            # print("leaf created:",values_y[np.argmax(counts)])
             newtree.leaf_value=values_y[np.argmax(counts)]
             return newtree
 
@@ -59,7 +60,7 @@ class classification_tree:
             values=np.unique(X[:,0])
             if values.size==1: 
                 newtree.leaf_value=values_y[np.argmax(counts)]
-                print("leaf created:",values_y[np.argmax(counts)])
+                # print("leaf created:",values_y[np.argmax(counts)])
                 return newtree
             else:
                 newtree.node_id=selector[0]
@@ -75,17 +76,17 @@ class classification_tree:
             had=self.__get_feature_entropy(X[:,j])
             gain_ratio[j]=(hd-hda)/had
         id=np.argmax(gain_ratio)
-        newtree.node_id=selector[id]
+        newtree.node_id=selector[id] # id is not the index of the feature in the orginal list
         values=np.unique(X[:,id])
         new_selector=[x for i,x in enumerate(selector) if i!=id]  
         new_cols=[i for i in range(len(selector)) if i!=id]
-        print(new_selector)
-        print(values)
-        print("now next:")
+        # print(new_selector)
+        # print(values)
+        # print("now next:")
         for i in range(values.size):
             subidx = X[:,id]==values[i]
-            print("subtree:",values[i])
-            print(X[:,new_cols][subidx])
+            # print("subtree:",values[i])
+            # print(X[:,new_cols][subidx])
             newtree.subtree[values[i]]=self.__build_tree(X[:,new_cols][subidx],y[subidx],new_selector)  
         return newtree
 
