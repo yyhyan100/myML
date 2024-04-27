@@ -18,22 +18,22 @@ class ANN_Reg:
         
     def __backpropagation(self, X, y):
         m, n = X.shape
-        _, n_out = y.shape
+        n_out = y.shape[1] if len(y)==2 else 1
 
-        layer_sizes = self.num_hlayers + (n_out,)
-        layer_n = len(layer_sizes)
+        layer_size = self.num_hlayers + (n_out,)
+        num_layer = len(layer_size)
 
         W = []
-        li_size = n
-        for lj_size in layer_sizes:
-            Wij = np.random.rand(li_size + 1, lj_size) * 0.05
+        li_n = n
+        for lj_n in layer_size:
+            Wij = np.random.rand(li_n + 1, lj_n) * 0.05
             W.append(Wij)
-            li_size = lj_size
+            li_n = lj_n
 
-        in_list      = [None] * layer_n
-        z_list       = [None] * layer_n
-        out     = [None] * layer_n
-        delta   = [None] * layer_n
+        in_list      = [None] * num_layer
+        z_list       = [None] * num_layer 
+        out     = [None] * num_layer
+        delta   = [None] * num_layer
 
         idx = np.arange(m)
         for _ in range(self.max_iter):
@@ -42,11 +42,11 @@ class ANN_Reg:
 
             for x, t in zip(X, y):
                 out = x
-                for i in range(layer_n):
+                for i in range(num_layer):
                     in_ = np.ones(out.size + 1)
                     in_[1:] = out 
                     z = self.__get_z(in_, W[i])
-                    if i != layer_n - 1:
+                    if i != num_layer - 1:
                         out = self.__sigmoid(z)
                     else:
                         out = z
@@ -54,11 +54,11 @@ class ANN_Reg:
 
 
                 delta[-1] = t - out
-                for i in range(layer_n - 2, -1, -1):
+                for i in range(num_layer - 2, -1, -1):
                     out_i, W_j, delta_j = out[i], W[i+1], delta[i+1]
                     delta[i] = out_i * (1. - out_i) * np.matmul(W_j[1:], delta_j[:, None]).T[0]
 
-                for i in range(layer_n):
+                for i in range(num_layer):
                     in_i, delta_i = in_list[i], delta[i]
                     W[i] += in_i[:, None] * delta_i * self.eta
 
